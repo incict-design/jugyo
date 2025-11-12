@@ -31,10 +31,10 @@
 
     .form-wrapper {
       display: flex;
-      gap: 1rem; /* 横並びの間隔 */
+      gap: 1rem;
       flex-shrink: 0;
       margin-bottom: 0.5rem;
-      align-items: flex-end; /* ラベル下部で揃える */
+      align-items: flex-end;
     }
 
     label {
@@ -42,7 +42,7 @@
       flex-direction: column;
       font-weight: 500;
       font-size: 0.95rem;
-      margin: 0; /* ラベル自体の余白は削除 */
+      margin: 0;
       flex: 1;
     }
 
@@ -81,6 +81,7 @@
       padding: 0.6rem;
       text-align: left;
       font-size: 0.9rem;
+      vertical-align: middle; /* 追加: 縦中央に揃える */
     }
     thead {
       background: #007bff;
@@ -123,13 +124,13 @@
     <h1>授業交換候補表示</h1>
 
     <div class="form-wrapper">
-     
+      
         <select id="teacherSelect" disabled>
           <option value="">読み込み中...</option>
         </select>
       </label>
 
-    
+     
         <select id="lessonSelect" disabled>
           <option value="">授業を選択</option>
         </select>
@@ -140,7 +141,6 @@
   </div>
 
   <script>
-    // JSは元のコードをそのまま使用
     const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
     const trainingsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/trainings.csv";
 
@@ -275,3 +275,4 @@
   </script>
 </body>
 </html>
+
