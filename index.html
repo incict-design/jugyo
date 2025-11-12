@@ -14,36 +14,42 @@
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 1rem 2rem; /* 上下のパディングを少し小さく */
+      padding: 1rem 2rem;
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      height: 90vh; /* 画面いっぱいに近い高さ */
+      height: 90vh;
     }
     h1 {
-      font-size: 1.3rem; /* 少し小さく */
+      font-size: 1.3rem;
       text-align: center;
-      margin-bottom: 0.8rem; /* 縦幅を縮める */
+      margin-bottom: 0.8rem;
       flex-shrink: 0;
     }
 
     .form-wrapper {
+      display: flex;
+      gap: 1rem; /* 横並びの間隔 */
       flex-shrink: 0;
-      margin-bottom: 0.5rem; /* 下との間隔を小さく */
+      margin-bottom: 0.5rem;
+      align-items: flex-end; /* ラベル下部で揃える */
     }
 
     label {
-      display: block;
-      margin-top: 0.5rem; /* 縦の間隔を小さく */
+      display: flex;
+      flex-direction: column;
       font-weight: 500;
       font-size: 0.95rem;
+      margin: 0; /* ラベル自体の余白は削除 */
+      flex: 1;
     }
+
     select {
       width: 100%;
-      padding: 0.4rem; /* 高さを少し小さく */
-      margin-top: 0.2rem; /* 縦の間隔を小さく */
+      padding: 0.4rem;
+      margin-top: 0.2rem;
       font-size: 0.95rem;
       border-radius: 6px;
       border: 1px solid #ccc;
@@ -72,7 +78,7 @@
       box-shadow: 0 3px 10px rgba(0,0,0,0.05);
     }
     th, td {
-      padding: 0.6rem; /* 少し小さく */
+      padding: 0.6rem;
       text-align: left;
       font-size: 0.9rem;
     }
@@ -130,11 +136,11 @@
       </label>
     </div>
 
-    <div id="results" class="muted">©飯村貴洋</div>
+    <div id="results" class="muted">教員を選択してください。</div>
   </div>
 
   <script>
-    // 以下のJSは元のコードをそのまま使用
+    // JSは元のコードをそのまま使用
     const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
     const trainingsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/trainings.csv";
 
