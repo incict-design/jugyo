@@ -5,7 +5,6 @@
   <title>授業交換候補表示</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    /* --- 全体 --- */
     body {
       font-family: "Segoe UI", Roboto, sans-serif;
       margin: 0;
@@ -14,19 +13,26 @@
     }
     .container {
       max-width: 900px;
-      margin: 2rem auto;
+      margin: 0 auto;
       padding: 2rem;
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 90vh; /* 画面いっぱいに近い高さ */
     }
     h1 {
       font-size: 1.5rem;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+      flex-shrink: 0;
     }
 
-    /* --- フォーム --- */
+    .form-wrapper {
+      flex-shrink: 0;
+    }
+
     label {
       display: block;
       margin-top: 1rem;
@@ -48,10 +54,11 @@
       box-shadow: 0 0 5px rgba(0,123,255,0.3);
     }
 
-    /* --- 結果 --- */
     #results {
-      margin-top: 2rem;
+      margin-top: 1rem;
       font-size: 0.95rem;
+      overflow-y: auto;
+      flex-grow: 1; /* 残りの高さを使う */
     }
 
     table {
@@ -70,6 +77,9 @@
     thead {
       background: #007bff;
       color: #fff;
+      position: sticky;
+      top: 0; /* ヘッダー固定 */
+      z-index: 1;
     }
     tbody tr:nth-child(even) {
       background: #f7f7f7;
@@ -85,10 +95,9 @@
 
     .table-wrapper {
       overflow-x: auto;
-      margin-top: 1rem;
+      margin-top: 0.5rem;
     }
 
-    /* 警告 */
     .warn {
       color: #b35;
       font-weight: 600;
@@ -105,44 +114,39 @@
   <div class="container">
     <h1>授業交換候補表示</h1>
 
-    <label>教員:
-      <select id="teacherSelect" disabled>
-        <option value="">読み込み中...</option>
-      </select>
-    </label>
+    <div class="form-wrapper">
+      <label>教員:
+        <select id="teacherSelect" disabled>
+          <option value="">読み込み中...</option>
+        </select>
+      </label>
 
-    <label>授業:
-      <select id="lessonSelect" disabled>
-        <option value="">読み込み中...</option>
-      </select>
-    </label>
+      <label>授業:
+        <select id="lessonSelect" disabled>
+          <option value="">読み込み中...</option>
+        </select>
+      </label>
+    </div>
 
-    <!-- 結果はフォームの下に表示 -->
-    <div id="results" class="muted"></div>
+    <div id="results" class="muted">教員を選択してください。</div>
   </div>
 
   <script>
+    // 以下のJSは元のコードをそのまま使用
     const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
     const trainingsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/trainings.csv";
 
-    const CLASS_LIMITS = { 1: 9, 2: 8, 3: 9 };
-    const DAY_MAP_IN = {
-      "mon":"Mon","monday":"Mon","月":"Mon",
-      "tue":"Tue","tuesday":"Tue","火":"Tue",
-      "wed":"Wed","wednesday":"Wed","水":"Wed",
-      "thu":"Thu","thursday":"Thu","木":"Thu",
-      "fri":"Fri","friday":"Fri","金":"Fri",
-      "sat":"Sat","saturday":"Sat","土":"Sat"
-    };
-    const DAY_JA_OUT = {Mon:"月", Tue:"火", Wed:"水", Thu:"木", Fri:"金", Sat:"土"};
+    const CLASS_LIMITS = {1:9,2:8,3:9};
+    const DAY_MAP_IN = {"mon":"Mon","monday":"Mon","月":"Mon","tue":"Tue","tuesday":"Tue","火":"Tue","wed":"Wed","wednesday":"Wed","水":"Wed","thu":"Thu","thursday":"Thu","木":"Thu","fri":"Fri","friday":"Fri","金":"Fri","sat":"Sat","saturday":"Sat","土":"Sat"};
+    const DAY_JA_OUT = {Mon:"月",Tue:"火",Wed:"水",Thu:"木",Fri:"金",Sat:"土"};
     const ORD = {1:"1限",2:"2限",3:"3限",4:"4限",5:"5限",6:"6限",7:"7限"};
 
-    let lessons = [], trainings = [], trainingTeachers = new Set(), teacherParttimeMap = new Map();
-    const teacherSelect = document.getElementById('teacherSelect');
-    const lessonSelect = document.getElementById('lessonSelect');
-    const resultsDiv = document.getElementById('results');
+    let lessons=[],trainings=[],trainingTeachers=new Set(),teacherParttimeMap=new Map();
+    const teacherSelect=document.getElementById('teacherSelect');
+    const lessonSelect=document.getElementById('lessonSelect');
+    const resultsDiv=document.getElementById('results');
 
-    function parseCSV(text){ return text.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim())); }
+    function parseCSV(text){ return text.replace(/^\uFEFF/,'').trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim())); }
     function normalizeDay(d){ if(!d) return ""; const k=String(d).toLowerCase(); return DAY_MAP_IN[k]||d; }
     function parseDigit(s){ if(s==null) return NaN; const m=String(s).match(/\d+/); return m?parseInt(m[0],10):NaN; }
     function parseGrade(g){ const n=parseDigit(g); return [1,2,3].includes(n)?n:NaN; }
@@ -155,13 +159,7 @@
     function formatSlot(day,period){ const d=DAY_JA_OUT[day]||day; const p=ORD[period]||(period+"限"); return d+p; }
     function findTraining(teacher,day,slot){ return trainings.find(t=>t.teacher===teacher&&t.day===day&&t.slot===slot); }
     function isParttimeTeacher(teacher){ if(!trainingTeachers.has(teacher)) return true; return !!teacherParttimeMap.get(teacher); }
-    function rankCandidate(c){
-      const isJoint = !!(c.other.group);
-      if (!c.trainingOverlap && !c.parttime && !isJoint) return 3;
-      if (isJoint && !c.trainingOverlap && !c.parttime) return 2;
-      if (c.trainingOverlap && !c.parttime) return 1;
-      return 0;
-    }
+    function rankCandidate(c){ const isJoint=!!c.other.group; if(!c.trainingOverlap&&!c.parttime&&!isJoint)return 3; if(isJoint&&!c.trainingOverlap&&!c.parttime)return 2; if(c.trainingOverlap&&!c.parttime)return 1; return 0; }
 
     async function loadCSVs() {
       try {
@@ -213,8 +211,6 @@
       });
       teacherSelect.disabled = false;
       lessonSelect.disabled = true;
-     
-     
     }
 
     teacherSelect.addEventListener('change',e=>{
