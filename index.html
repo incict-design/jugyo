@@ -134,40 +134,47 @@
 
     // ----------------- UI操作 -----------------
     function enableTeacherSelect(list){
-      teacherSelect.innerHTML='<option value="">教員を選択</option>';
-      list.forEach(t=>{ const op=document.createElement('option'); op.value=t; op.textContent=t; teacherSelect.appendChild(op); });
-      teacherSelect.disabled=false;
-      resultsDiv.textContent = "教員を選んでください。";
+      teacherSelect.innerHTML = '<option value="">教員を選択</option>';
+      list.forEach((t, index) => {
+        const op = document.createElement('option');
+        op.value = t;
+        op.textContent = `${index + 1}. ${t}`;  // ← 教員番号付き
+        teacherSelect.appendChild(op);
+      });
+      teacherSelect.disabled = false;
+      lessonSelect.disabled = true;
+      lessonSelect.innerHTML = '<option value="">先に教員を選んでください</option>';
+      
     }
 
     teacherSelect.addEventListener('change',e=>{
-      const name=e.target.value;
-      const myLessons=lessons.filter(l=>l.teacher===name);
-      lessonSelect.innerHTML='<option value="">授業を選択</option>';
+      const name = e.target.value;
+      const myLessons = lessons.filter(l=>l.teacher === name);
+      lessonSelect.innerHTML = '<option value="">授業を選択</option>';
       myLessons.forEach(l=>{
-        const op=document.createElement('option');
-        op.value=lessons.indexOf(l);
-        op.textContent=`${formatSlot(l.day,l.period)} ${l.grade}年${l.class}組 ${l.subject}`;
+        const op = document.createElement('option');
+        op.value = lessons.indexOf(l);
+        op.textContent = `${formatSlot(l.day,l.period)} ${l.grade}年${l.class}組 ${l.subject}`;
         lessonSelect.appendChild(op);
       });
-      lessonSelect.disabled=false;
-      resultsDiv.textContent="授業を選択してください。";
+      lessonSelect.disabled = false;
+     
     });
 
     lessonSelect.addEventListener('change',e=>{
-      const idx=Number(e.target.value);
+      const idx = Number(e.target.value);
       if(Number.isNaN(idx)) return;
-      const me=lessons[idx];
-      const myDay=me.day,myPeriod=me.period,mySlot=periodToSlot(myPeriod);
-      let candidates=[];
+      const me = lessons[idx];
+      const myDay = me.day, myPeriod = me.period, mySlot = periodToSlot(myPeriod);
+      let candidates = [];
       lessons.forEach(other=>{
         if(other.teacher===me.teacher) return;
         if(!sameClassAndCourse(me,other)) return;
         if(teacherHasSlot(me.teacher,other.day,other.period)) return;
         if(teacherHasSlot(other.teacher,myDay,myPeriod)) return;
-        const trainingInfo=findTraining(other.teacher,myDay,mySlot);
-        const trainingOverlap=!!trainingInfo;
-        const parttimeFlag=isParttimeTeacher(other.teacher);
+        const trainingInfo = findTraining(other.teacher,myDay,mySlot);
+        const trainingOverlap = !!trainingInfo;
+        const parttimeFlag = isParttimeTeacher(other.teacher);
         candidates.push({ other, trainingOverlap, parttime: parttimeFlag });
       });
       if(!candidates.length){ resultsDiv.innerHTML="<p>交換候補はありません。</p>"; return; }
