@@ -5,35 +5,121 @@
   <title>授業交換候補表示</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    body { font-family: system-ui, sans-serif; margin: 20px; }
-    h1 { font-size: 1.2rem; }
-    label { display:block; margin-top:1rem; }
-    select,input { padding:4px; }
-    table { border-collapse:collapse; margin-top:1rem; width:100%; max-width:1200px; }
-    th,td { border:1px solid #ccc; padding:6px 8px; font-size:0.9rem; text-align:left; }
-    .muted { color:#777; font-size:0.85rem; }
-    .training-conflict { color: red; font-weight: 700; }
-    .parttime-row { color: blue; font-weight: 700; }
-    .warn { color:#b35; }
+    /* --- 全体 --- */
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      background: #f0f2f5;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    /* --- フォーム --- */
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+    select {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.3rem;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      transition: 0.2s;
+    }
+    select:focus {
+      border-color: #007bff;
+      outline: none;
+      box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    }
+
+    /* --- 結果 --- */
+    #results {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+    th, td {
+      padding: 0.7rem;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+    thead {
+      background: #007bff;
+      color: #fff;
+    }
+    tbody tr:nth-child(even) {
+      background: #f7f7f7;
+    }
+    tbody tr.training-conflict {
+      color: red;
+      font-weight: 600;
+    }
+    tbody tr.parttime-row {
+      color: #007bff;
+      font-weight: 600;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+
+    /* 警告 */
+    .warn {
+      color: #b35;
+      font-weight: 600;
+    }
+
+    .muted {
+      color: #777;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <h1>授業交換候補表示</h1>
- 
+  <div class="container">
+    <h1>授業交換候補表示</h1>
 
-  <label>教員:
-    <select id="teacherSelect" disabled>
-      <option value="">読み込み中...</option>
-    </select>
-  </label>
+    <label>教員:
+      <select id="teacherSelect" disabled>
+        <option value="">読み込み中...</option>
+      </select>
+    </label>
 
-  <label>授業:
-    <select id="lessonSelect" disabled>
-      <option value="">読み込み中...</option>
-    </select>
-  </label>
+    <label>授業:
+      <select id="lessonSelect" disabled>
+        <option value="">読み込み中...</option>
+      </select>
+    </label>
 
- <div id="results" class="muted" style="margin-top:1.2rem;"></div>
+    <!-- 結果はフォームの下に表示 -->
+    <div id="results" class="muted"></div>
+  </div>
 
   <script>
     const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
@@ -51,16 +137,11 @@
     const DAY_JA_OUT = {Mon:"月", Tue:"火", Wed:"水", Thu:"木", Fri:"金", Sat:"土"};
     const ORD = {1:"1限",2:"2限",3:"3限",4:"4限",5:"5限",6:"6限",7:"7限"};
 
-    let lessons = [];
-    let trainings = [];
-    let trainingTeachers = new Set();
-    let teacherParttimeMap = new Map();
-
+    let lessons = [], trainings = [], trainingTeachers = new Set(), teacherParttimeMap = new Map();
     const teacherSelect = document.getElementById('teacherSelect');
     const lessonSelect = document.getElementById('lessonSelect');
     const resultsDiv = document.getElementById('results');
 
-    // ----------------- 共通関数 -----------------
     function parseCSV(text){ return text.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim())); }
     function normalizeDay(d){ if(!d) return ""; const k=String(d).toLowerCase(); return DAY_MAP_IN[k]||d; }
     function parseDigit(s){ if(s==null) return NaN; const m=String(s).match(/\d+/); return m?parseInt(m[0],10):NaN; }
@@ -74,7 +155,6 @@
     function formatSlot(day,period){ const d=DAY_JA_OUT[day]||day; const p=ORD[period]||(period+"限"); return d+p; }
     function findTraining(teacher,day,slot){ return trainings.find(t=>t.teacher===teacher&&t.day===day&&t.slot===slot); }
     function isParttimeTeacher(teacher){ if(!trainingTeachers.has(teacher)) return true; return !!teacherParttimeMap.get(teacher); }
-
     function rankCandidate(c){
       const isJoint = !!(c.other.group);
       if (!c.trainingOverlap && !c.parttime && !isJoint) return 3;
@@ -83,7 +163,6 @@
       return 0;
     }
 
-    // ----------------- データ読み込み -----------------
     async function loadCSVs() {
       try {
         const [lessonsText, trainingsText] = await Promise.all([
@@ -93,7 +172,7 @@
         loadLessonsFromText(lessonsText);
         loadTrainingsFromText(trainingsText);
       } catch(e) {
-        resultsDiv.innerHTML = `<span class="warn">CSVの読み込みに失敗しました。GitHubのURLを確認してください。</span>`;
+        resultsDiv.innerHTML = `<span class="warn">CSVの読み込みに失敗しました。</span>`;
       }
     }
 
@@ -104,14 +183,9 @@
             iCourse=h.indexOf('course'), iD=h.indexOf('day'), iP=h.indexOf('period'),
             iS=h.indexOf('subject'), iGrp=h.indexOf('group');
       lessons = data.slice(1).map(r=>({
-        teacher:r[iT],
-        grade:parseGrade(r[iG]),
-        class:parseClass(r[iC]),
-        course:normalizeCourse(r[iCourse]),
-        day:normalizeDay(r[iD]),
-        period:parsePeriod(r[iP]),
-        subject:r[iS],
-        group:(iGrp>=0?(r[iGrp]||""):"")
+        teacher:r[iT], grade:parseGrade(r[iG]), class:parseClass(r[iC]),
+        course:normalizeCourse(r[iCourse]), day:normalizeDay(r[iD]), period:parsePeriod(r[iP]),
+        subject:r[iS], group:(iGrp>=0?(r[iGrp]||""):"")
       })).filter(l=>l.teacher&&[1,2,3].includes(l.grade)&&["Mon","Tue","Wed","Thu","Fri","Sat"].includes(l.day));
       enableTeacherSelect([...new Set(lessons.map(l=>l.teacher))]);
     }
@@ -122,29 +196,25 @@
       const iT=h.indexOf('teacher'), iD=h.indexOf('day'), iSlot=h.indexOf('slot'),
             iDetail=h.indexOf('detail'), iPart=h.indexOf('parttime');
       trainings = data.slice(1).map(r=>({
-        teacher:r[iT],
-        day:normalizeDay(r[iD]),
-        slot:(r[iSlot]||"").toLowerCase(),
-        detail:iDetail>=0?r[iDetail]:"",
-        parttime:iPart>=0?(String(r[iPart]).toLowerCase()==="yes"):false
+        teacher:r[iT], day:normalizeDay(r[iD]), slot:(r[iSlot]||"").toLowerCase(),
+        detail:iDetail>=0?r[iDetail]:"", parttime:iPart>=0?(String(r[iPart]).toLowerCase()==="yes"):false
       }));
       trainingTeachers = new Set(trainings.map(t=>t.teacher));
       trainings.forEach(t=>{ teacherParttimeMap.set(t.teacher,(teacherParttimeMap.get(t.teacher)||false)||t.parttime); });
     }
 
-    // ----------------- UI操作 -----------------
     function enableTeacherSelect(list){
       teacherSelect.innerHTML = '<option value="">教員を選択</option>';
-      list.forEach((t, index) => {
+      list.forEach((t,index)=>{
         const op = document.createElement('option');
         op.value = t;
-        op.textContent = `${index + 1}. ${t}`;  // ← 教員番号付き
+        op.textContent = `${index+1}. ${t}`;
         teacherSelect.appendChild(op);
       });
       teacherSelect.disabled = false;
       lessonSelect.disabled = true;
-      lessonSelect.innerHTML = '<option value="">先に教員を選んでください</option>';
-      
+     
+     
     }
 
     teacherSelect.addEventListener('change',e=>{
@@ -158,7 +228,6 @@
         lessonSelect.appendChild(op);
       });
       lessonSelect.disabled = false;
-     
     });
 
     lessonSelect.addEventListener('change',e=>{
@@ -179,6 +248,9 @@
       });
       if(!candidates.length){ resultsDiv.innerHTML="<p>交換候補はありません。</p>"; return; }
       candidates.sort((a,b)=>rankCandidate(b)-rankCandidate(a));
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
       const tbl=document.createElement('table');
       tbl.innerHTML="<thead><tr><th>相手教員</th><th>相手授業</th><th>研修</th><th>非常勤</th></tr></thead>";
       const tb=document.createElement('tbody');
@@ -190,10 +262,11 @@
         tb.appendChild(tr);
       });
       tbl.appendChild(tb);
-      resultsDiv.innerHTML=""; resultsDiv.appendChild(tbl);
+      wrapper.appendChild(tbl);
+      resultsDiv.innerHTML="";
+      resultsDiv.appendChild(wrapper);
     });
 
-    // ページ読み込み時に自動実行
     window.addEventListener("DOMContentLoaded", loadCSVs);
   </script>
 </body>
