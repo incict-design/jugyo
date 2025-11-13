@@ -1,278 +1,282 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>授業交換候補表示</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body {
-      font-family: "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      background: #f0f2f5;
-      color: #333;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 1rem 2rem;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      height: 90vh;
-    }
-    h1 {
-      font-size: 1.3rem;
-      text-align: center;
-      margin-bottom: 0.8rem;
-      flex-shrink: 0;
-    }
-
-    .form-wrapper {
-      display: flex;
-      gap: 1rem;
-      flex-shrink: 0;
-      margin-bottom: 0.5rem;
-      align-items: flex-end;
-    }
-
-    label {
-      display: flex;
-      flex-direction: column;
-      font-weight: 500;
-      font-size: 0.95rem;
-      margin: 0;
-      flex: 1;
-    }
-
-    select {
-      width: 100%;
-      padding: 0.4rem;
-      margin-top: 0.2rem;
-      font-size: 0.95rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      background: #fafafa;
-      transition: 0.2s;
-    }
-    select:focus {
-      border-color: #007bff;
-      outline: none;
-      box-shadow: 0 0 5px rgba(0,123,255,0.3);
-    }
-
-    #results {
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-      overflow-y: auto;
-      flex-grow: 1;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-    }
-    th, td {
-      padding: 0.6rem;
-      text-align: left;
-      font-size: 0.9rem;
-      vertical-align: middle; /* 追加: 縦中央に揃える */
-    }
-    thead {
-      background: #007bff;
-      color: #fff;
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    tbody tr:nth-child(even) {
-      background: #f7f7f7;
-    }
-    tbody tr.training-conflict {
-      color: red;
-      font-weight: 600;
-    }
-    tbody tr.parttime-row {
-      color: #007bff;
-      font-weight: 600;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 0.5rem;
-    }
-
-    .warn {
-      color: #b35;
-      font-weight: 600;
-    }
-
-    .muted {
-      color: #777;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>授業交換候補表示（共通候補表示）</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  background: #f0f2f5;
+  color: #333;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+h1 {
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 0.8rem;
+}
+.form-wrapper {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  align-items: flex-end;
+}
+select {
+  width: 100%;
+  padding: 0.4rem;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+}
+select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+.selected-teachers-wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.selected-teachers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.teacher-tag, .selected-lesson-tag {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+.teacher-tag { background: #e0ebff; }
+.selected-lesson-tag { background: #d1ffd1; margin:2px; }
+button {
+  padding: 2px 6px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  cursor: pointer;
+  height: 100%;
+}
+button:hover { background: #e0e0e0; }
+#results {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  overflow-y: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+th, td {
+  padding: 0.6rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+thead {
+  background: #007bff;
+  color: #fff;
+  position: sticky;
+  top: 0;
+}
+tbody tr:nth-child(even) { background: #f7f7f7; }
+tbody tr.parttime { background: #fff4e6; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>授業交換候補表示</h1>
+<div class="container">
+<h1>授業交換候補表示</h1>
 
-    <div class="form-wrapper">
-      
-        <select id="teacherSelect" disabled>
-          <option value="">読み込み中...</option>
-        </select>
-      </label>
+<div class="form-wrapper">
+  <select id="teacherSelect" disabled><option value="">教員を選択</option></select>
+  <select id="lessonSelect" disabled><option value="">授業を選択</option></select>
+</div>
 
-     
-        <select id="lessonSelect" disabled>
-          <option value="">授業を選択</option>
-        </select>
-      </label>
-    </div>
+<div class="selected-teachers-wrapper">
+  <div class="selected-teachers" id="selectedTeachers">選択中の教員: なし</div>
+  <button id="resetTeachers" type="button">リセット</button>
+</div>
 
-    <div id="results" class="muted">©飯村貴洋</div>
-  </div>
+<div class="selected-teachers-wrapper">
+  <div class="selected-teachers" id="selectedLessonsDiv">選択中の授業: なし</div>
+  <button id="resetLessons" type="button">リセット</button>
+</div>
 
-  <script>
-    const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
-    const trainingsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/trainings.csv";
+<div id="results">©飯村貴洋</div>
+</div>
 
-    const CLASS_LIMITS = {1:9,2:8,3:9};
-    const DAY_MAP_IN = {"mon":"Mon","monday":"Mon","月":"Mon","tue":"Tue","tuesday":"Tue","火":"Tue","wed":"Wed","wednesday":"Wed","水":"Wed","thu":"Thu","thursday":"Thu","木":"Thu","fri":"Fri","friday":"Fri","金":"Fri","sat":"Sat","saturday":"Sat","土":"Sat"};
-    const DAY_JA_OUT = {Mon:"月",Tue:"火",Wed:"水",Thu:"木",Fri:"金",Sat:"土"};
-    const ORD = {1:"1限",2:"2限",3:"3限",4:"4限",5:"5限",6:"6限",7:"7限"};
+<script>
+const lessonsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/lessons.csv";
+const trainingsUrl = "https://raw.githubusercontent.com/incict-design/jugyo/main/data/trainings.csv";
 
-    let lessons=[],trainings=[],trainingTeachers=new Set(),teacherParttimeMap=new Map();
-    const teacherSelect=document.getElementById('teacherSelect');
-    const lessonSelect=document.getElementById('lessonSelect');
-    const resultsDiv=document.getElementById('results');
+const DAY_MAP_IN = {"mon":"Mon","月":"Mon","tue":"Tue","火":"Tue","wed":"Wed","水":"Wed","thu":"Thu","木":"Thu","fri":"Fri","金":"Fri","sat":"Sat","土":"Sat"};
+const DAY_JA_OUT = {Mon:"月",Tue:"火",Wed:"水",Thu:"木",Fri:"金",Sat:"土"};
+const ORD = {1:"1限",2:"2限",3:"3限",4:"4限",5:"5限",6:"6限",7:"7限"};
 
-    function parseCSV(text){ return text.replace(/^\uFEFF/,'').trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim())); }
-    function normalizeDay(d){ if(!d) return ""; const k=String(d).toLowerCase(); return DAY_MAP_IN[k]||d; }
-    function parseDigit(s){ if(s==null) return NaN; const m=String(s).match(/\d+/); return m?parseInt(m[0],10):NaN; }
-    function parseGrade(g){ const n=parseDigit(g); return [1,2,3].includes(n)?n:NaN; }
-    function parseClass(c){ return parseDigit(c); }
-    function parsePeriod(p){ const n=parseDigit(p); return (n>=1&&n<=7)?n:NaN; }
-    function normalizeCourse(c){ if(!c) return ""; const low=String(c).trim().toLowerCase(); if(["文系","humanities","arts","h"].includes(low))return"文系"; if(["理系","science","sci","s"].includes(low))return"理系"; return String(c).trim(); }
-    function periodToSlot(period){ return period<=4?"am":"pm"; }
-    function teacherHasSlot(teacher,day,period){ return lessons.some(l=>l.teacher===teacher&&l.day===day&&l.period===period); }
-    function sameClassAndCourse(a,b){ if(a.grade!==b.grade) return false; if(a.class!==b.class) return false; if(a.grade>=2&&(a.course||"")!==(b.course||"")) return false; return true; }
-    function formatSlot(day,period){ const d=DAY_JA_OUT[day]||day; const p=ORD[period]||(period+"限"); return d+p; }
-    function findTraining(teacher,day,slot){ return trainings.find(t=>t.teacher===teacher&&t.day===day&&t.slot===slot); }
-    function isParttimeTeacher(teacher){ if(!trainingTeachers.has(teacher)) return true; return !!teacherParttimeMap.get(teacher); }
-    function rankCandidate(c){ const isJoint=!!c.other.group; if(!c.trainingOverlap&&!c.parttime&&!isJoint)return 3; if(isJoint&&!c.trainingOverlap&&!c.parttime)return 2; if(c.trainingOverlap&&!c.parttime)return 1; return 0; }
+let lessons=[], trainings=[], trainingTeachers=new Set(), teacherParttimeMap=new Map();
+const teacherSelect = document.getElementById('teacherSelect');
+const lessonSelect = document.getElementById('lessonSelect');
+const resultsDiv = document.getElementById('results');
+const selectedTeachersDiv = document.getElementById('selectedTeachers');
+const selectedLessonsDiv = document.getElementById('selectedLessonsDiv');
 
-    async function loadCSVs() {
-      try {
-        const [lessonsText, trainingsText] = await Promise.all([
-          fetch(lessonsUrl).then(r => r.text()),
-          fetch(trainingsUrl).then(r => r.text())
-        ]);
-        loadLessonsFromText(lessonsText);
-        loadTrainingsFromText(trainingsText);
-      } catch(e) {
-        resultsDiv.innerHTML = `<span class="warn">CSVの読み込みに失敗しました。</span>`;
-      }
-    }
+let selectedTeachers = [];
+let selectedLessons = [];
 
-    function loadLessonsFromText(text){
-      const data=parseCSV(text);
-      const h=data[0].map(x=>x.toLowerCase());
-      const iT=h.indexOf('teacher'), iG=h.indexOf('grade'), iC=h.indexOf('class'),
-            iCourse=h.indexOf('course'), iD=h.indexOf('day'), iP=h.indexOf('period'),
-            iS=h.indexOf('subject'), iGrp=h.indexOf('group');
-      lessons = data.slice(1).map(r=>({
-        teacher:r[iT], grade:parseGrade(r[iG]), class:parseClass(r[iC]),
-        course:normalizeCourse(r[iCourse]), day:normalizeDay(r[iD]), period:parsePeriod(r[iP]),
-        subject:r[iS], group:(iGrp>=0?(r[iGrp]||""):"")
-      })).filter(l=>l.teacher&&[1,2,3].includes(l.grade)&&["Mon","Tue","Wed","Thu","Fri","Sat"].includes(l.day));
-      enableTeacherSelect([...new Set(lessons.map(l=>l.teacher))]);
-    }
+function parseCSV(text){ return text.replace(/^\uFEFF/,'').trim().split(/\r?\n/).map(l=>l.split(',').map(s=>s.trim())); }
+function normalizeDay(d){ return DAY_MAP_IN[d.toLowerCase()]||d; }
+function parseDigit(s){ const m=String(s).match(/\d+/); return m?parseInt(m[0],10):NaN; }
+function parseGrade(g){ const n=parseDigit(g); return [1,2,3].includes(n)?n:NaN; }
+function parseClass(c){ return parseDigit(c); }
+function parsePeriod(p){ const n=parseDigit(p); return (n>=1&&n<=7)?n:NaN; }
+function normalizeCourse(c){ if(!c)return""; const low=c.trim().toLowerCase(); if(["文系","humanities","h"].includes(low))return"文系"; if(["理系","science","s"].includes(low))return"理系"; return c.trim(); }
+function periodToSlot(period){ return period<=4?"am":"pm"; }
+function teacherHasSlot(teacher,day,period){ return lessons.some(l=>l.teacher===teacher && l.day===day && l.period===period); }
+function formatSlot(day,period){ return (DAY_JA_OUT[day]||day)+(ORD[period]||period+"限"); }
+function isParttimeTeacher(teacher){ if(!trainingTeachers.has(teacher)) return true; return !!teacherParttimeMap.get(teacher); }
 
-    function loadTrainingsFromText(text){
-      const data=parseCSV(text);
-      const h=data[0].map(x=>x.toLowerCase());
-      const iT=h.indexOf('teacher'), iD=h.indexOf('day'), iSlot=h.indexOf('slot'),
-            iDetail=h.indexOf('detail'), iPart=h.indexOf('parttime');
-      trainings = data.slice(1).map(r=>({
-        teacher:r[iT], day:normalizeDay(r[iD]), slot:(r[iSlot]||"").toLowerCase(),
-        detail:iDetail>=0?r[iDetail]:"", parttime:iPart>=0?(String(r[iPart]).toLowerCase()==="yes"):false
-      }));
-      trainingTeachers = new Set(trainings.map(t=>t.teacher));
-      trainings.forEach(t=>{ teacherParttimeMap.set(t.teacher,(teacherParttimeMap.get(t.teacher)||false)||t.parttime); });
-    }
+async function loadCSVs() {
+  const [lText, tText] = await Promise.all([fetch(lessonsUrl).then(r=>r.text()), fetch(trainingsUrl).then(r=>r.text())]);
+  loadLessons(lText); loadTrainings(tText);
+}
 
-    function enableTeacherSelect(list){
-      teacherSelect.innerHTML = '<option value="">教員を選択</option>';
-      list.forEach((t,index)=>{
-        const op = document.createElement('option');
-        op.value = t;
-        op.textContent = `${index+1}. ${t}`;
-        teacherSelect.appendChild(op);
+function loadLessons(text){
+  const d=parseCSV(text);
+  const h=d[0].map(x=>x.toLowerCase());
+  const iT=h.indexOf('teacher'),iG=h.indexOf('grade'),iC=h.indexOf('class'),iCourse=h.indexOf('course'),iD=h.indexOf('day'),iP=h.indexOf('period'),iS=h.indexOf('subject');
+  lessons=d.slice(1).map(r=>({teacher:r[iT],grade:parseGrade(r[iG]),class:parseClass(r[iC]),course:normalizeCourse(r[iCourse]),day:normalizeDay(r[iD]),period:parsePeriod(r[iP]),subject:r[iS]})).filter(l=>l.teacher);
+  const teachers=[...new Set(lessons.map(l=>l.teacher))];
+  teacherSelect.innerHTML='<option value="">教員を選択</option>';
+  teachers.forEach((t,i)=>{ const op=document.createElement('option'); op.value=t; op.textContent=`${i+1}. ${t}`; teacherSelect.appendChild(op); });
+  teacherSelect.disabled=false;
+}
+
+function loadTrainings(text){
+  const d=parseCSV(text);
+  const h=d[0].map(x=>x.toLowerCase());
+  const iT=h.indexOf('teacher'), iD=h.indexOf('day'), iSlot=h.indexOf('slot'), iPart=h.indexOf('parttime');
+  trainings=d.slice(1).map(r=>({teacher:r[iT], day:normalizeDay(r[iD]), slot:(r[iSlot]||"").toLowerCase(), parttime:(String(r[iPart]).toLowerCase()==="yes")}));
+  trainingTeachers=new Set(trainings.map(t=>t.teacher));
+  trainings.forEach(t=>teacherParttimeMap.set(t.teacher,t.parttime));
+}
+
+teacherSelect.addEventListener('change',()=>{
+  const t=teacherSelect.value;
+  if(!t) return;
+  if(selectedTeachers.includes(t)) return alert("同じ教員は選べません。");
+  if(selectedTeachers.length>=3) return alert("最大3人まで選択できます。");
+  selectedTeachers.push(t);
+  updateSelectedTeachersDisplay();
+  teacherSelect.value="";
+
+  const myLessons = lessons.filter(l=>selectedTeachers.includes(l.teacher));
+  lessonSelect.innerHTML = '<option value="">授業を選択</option>';
+  myLessons.forEach((l)=>{ const op=document.createElement('option'); op.value=lessons.indexOf(l); op.textContent=`${l.teacher}：${formatSlot(l.day,l.period)} ${l.grade}年${l.class}組 ${l.subject}`; lessonSelect.appendChild(op); });
+  lessonSelect.disabled=false;
+});
+
+lessonSelect.addEventListener('change',()=>{
+  const idx = Number(lessonSelect.value);
+  if(Number.isNaN(idx)) return;
+  if(selectedLessons.length >= 2) return alert("授業は2つまで選択できます。");
+  const me = lessons[idx];
+  selectedLessons.push(me);
+  updateSelectedLessonsDisplay();
+  lessonSelect.value="";
+  updateResults();
+});
+
+function updateSelectedTeachersDisplay(){
+  if(selectedTeachers.length===0){ selectedTeachersDiv.textContent="選択中の教員: なし"; }
+  else { selectedTeachersDiv.innerHTML="選択中の教員: "+selectedTeachers.map(t=>`<span class='teacher-tag'>${t}</span>`).join(""); }
+}
+
+function updateSelectedLessonsDisplay(){
+  if(selectedLessons.length===0){ selectedLessonsDiv.textContent="選択中の授業: なし"; }
+  else { selectedLessonsDiv.innerHTML="選択中の授業: "+selectedLessons.map(l=>`<span class='selected-lesson-tag'>${l.teacher}：${l.subject}</span>`).join(""); }
+}
+
+function updateResults(){
+  resultsDiv.innerHTML="";
+  if(selectedLessons.length===0) return;
+
+  // 全候補を日付_時限でマップ
+  const candidatesMap = new Map();
+
+  lessons.forEach(other=>{
+    // 選択授業の教師は除外
+    if(selectedLessons.some(s=>s.teacher===other.teacher)) return;
+
+    // 選択授業と同じ学年・クラス
+    if(!selectedLessons.every(s => s.grade===other.grade && s.class===other.class)) return;
+
+    selectedLessons.forEach(s=>{
+      if(teacherHasSlot(s.teacher, other.day, other.period)) return;
+      if(teacherHasSlot(other.teacher, s.day, s.period)) return;
+
+      const key = `${other.day}_${other.period}`;
+      if(!candidatesMap.has(key)) candidatesMap.set(key, []);
+      candidatesMap.get(key).push({
+        teacher: other.teacher,
+        detail: `${formatSlot(other.day,other.period)} ${other.grade}年${other.class}組 ${other.subject}`,
+        parttime: isParttimeTeacher(other.teacher)
       });
-      teacherSelect.disabled = false;
-      lessonSelect.disabled = true;
-    }
-
-    teacherSelect.addEventListener('change',e=>{
-      const name = e.target.value;
-      const myLessons = lessons.filter(l=>l.teacher === name);
-      lessonSelect.innerHTML = '<option value="">授業を選択</option>';
-      myLessons.forEach(l=>{
-        const op = document.createElement('option');
-        op.value = lessons.indexOf(l);
-        op.textContent = `${formatSlot(l.day,l.period)} ${l.grade}年${l.class}組 ${l.subject}`;
-        lessonSelect.appendChild(op);
-      });
-      lessonSelect.disabled = false;
     });
+  });
 
-    lessonSelect.addEventListener('change',e=>{
-      const idx = Number(e.target.value);
-      if(Number.isNaN(idx)) return;
-      const me = lessons[idx];
-      const myDay = me.day, myPeriod = me.period, mySlot = periodToSlot(myPeriod);
-      let candidates = [];
-      lessons.forEach(other=>{
-        if(other.teacher===me.teacher) return;
-        if(!sameClassAndCourse(me,other)) return;
-        if(teacherHasSlot(me.teacher,other.day,other.period)) return;
-        if(teacherHasSlot(other.teacher,myDay,myPeriod)) return;
-        const trainingInfo = findTraining(other.teacher,myDay,mySlot);
-        const trainingOverlap = !!trainingInfo;
-        const parttimeFlag = isParttimeTeacher(other.teacher);
-        candidates.push({ other, trainingOverlap, parttime: parttimeFlag });
-      });
-      if(!candidates.length){ resultsDiv.innerHTML="<p>交換候補はありません。</p>"; return; }
-      candidates.sort((a,b)=>rankCandidate(b)-rankCandidate(a));
+  // 2つの授業で共通の候補のみ
+  const finalCandidates = [];
+  candidatesMap.forEach((arr,key)=>{
+    if(arr.length === selectedLessons.length) finalCandidates.push(...arr);
+  });
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'table-wrapper';
-      const tbl=document.createElement('table');
-      tbl.innerHTML="<thead><tr><th>相手教員</th><th>相手授業</th><th>研修</th><th>非常勤</th></tr></thead>";
-      const tb=document.createElement('tbody');
-      candidates.forEach(c=>{
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${c.other.teacher}</td><td>${formatSlot(c.other.day,c.other.period)} ${c.other.grade}年${c.other.class}組 ${c.other.subject}</td><td style='text-align:center;'>${c.trainingOverlap?'〇':''}</td><td style='text-align:center;'>${c.parttime?'〇':''}</td>`;
-        if(c.trainingOverlap) tr.classList.add("training-conflict");
-        else if(c.parttime) tr.classList.add("parttime-row");
-        tb.appendChild(tr);
-      });
-      tbl.appendChild(tb);
-      wrapper.appendChild(tbl);
-      resultsDiv.innerHTML="";
-      resultsDiv.appendChild(wrapper);
-    });
+  if(finalCandidates.length===0){ resultsDiv.textContent="候補なし"; return; }
 
-    window.addEventListener("DOMContentLoaded", loadCSVs);
-  </script>
+  const tbl=document.createElement('table');
+  tbl.innerHTML="<thead><tr><th>曜日・限</th><th>教員</th><th>授業</th></tr></thead>";
+  const tb=document.createElement('tbody');
+  finalCandidates.forEach(c=>{
+    const tr=document.createElement('tr');
+    if(c.parttime) tr.className="parttime";
+    tr.innerHTML=`<td>${c.detail.split(" ")[0]}</td><td>${c.teacher}</td><td>${c.detail.split(" ").slice(1).join(" ")}</td>`;
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  resultsDiv.appendChild(tbl);
+}
+
+// リセット
+document.getElementById("resetTeachers").addEventListener("click",()=>{
+  selectedTeachers=[]; selectedLessons=[]; updateSelectedTeachersDisplay(); updateSelectedLessonsDisplay();
+  lessonSelect.innerHTML='<option value="">授業を選択</option>'; lessonSelect.disabled=true; resultsDiv.innerHTML="©飯村貴洋";
+});
+document.getElementById("resetLessons").addEventListener("click",()=>{
+  selectedLessons=[]; updateSelectedLessonsDisplay(); resultsDiv.innerHTML="©飯村貴洋";
+});
+
+window.addEventListener("DOMContentLoaded", loadCSVs);
+</script>
 </body>
 </html>
 
